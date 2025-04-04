@@ -23,7 +23,7 @@ jobs:
       with:
         python-version: 3.13  
 
-    - name: Install dependencies
+    - name: Install python dependencies
       run: |
         python -m venv venv
         source venv/bin/activate

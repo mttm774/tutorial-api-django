@@ -25,7 +25,12 @@ SECRET_KEY = "django-insecure-8t0j89km0p134pnnr*ela05v)hvd&u4jw0h%)(@4z8f8ap37%r
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# Agregamos los hosts permitidos, incluyendo el dominio de Azure App Service
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    "vehiculosapicontainer.azurewebsites.net",
+]
 
 
 # Application definition

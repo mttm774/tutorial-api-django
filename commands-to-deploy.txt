@@ -1,0 +1,47 @@
+# Crear un registro de contenedores de Azure (Azure Container Registry - ACR)
+# - vehiculosregistry: nombre del registro
+# - vehiculos: grupo de recursos donde se creará
+# - Basic: nivel de servicio más económico para entornos de desarrollo
+# - admin-enabled: permite autenticación con usuario/contraseña (además de Azure AD)
+az acr create --name vehiculosregistry --resource-group vehiculos --sku Basic --admin-enabled true
+
+# Iniciar sesión en el registro de contenedores desde la terminal local
+# Esto permite enviar imágenes de Docker al registro
+az acr login --name vehiculosregistry
+
+# Construir la imagen de Docker para la API de vehículos
+# - Se etiqueta con la dirección completa del registro y el nombre de la imagen
+# - 'latest' es la etiqueta de versión (en producción es mejor usar versiones específicas)
+docker build -t vehiculosregistry.azurecr.io/vehiculos-api:latest .
+
+# Enviar la imagen construida al registro de contenedores de Azure
+docker push vehiculosregistry.azurecr.io/vehiculos-api:latest
+
+# ESPECÍFICO PARA USUARIOS DE MACOS
+# Los siguientes comandos son necesarios para sistemas macOS porque App Service
+# en Azure utiliza arquitectura Linux/AMD64, mientras que Mac con chips Apple Silicon usa ARM64
+# 1. Crear un nuevo constructor de Docker que soporte múltiples arquitecturas
+docker buildx create --use
+# 2. Construir y enviar la imagen directamente con la arquitectura correcta (linux/amd64)
+docker buildx build --platform linux/amd64 -t vehiculosregistry.azurecr.io/vehiculos-api:latest --push .
+
+# Crear un plan de App Service para alojar la aplicación
+# - containersb1: nombre del plan
+# - vehiculos: grupo de recursos
+# - is-linux: especifica que usaremos contenedores Linux
+# - sku B1: nivel básico de servicio (para producción considerar planes más robustos)
+az appservice plan create --name containersb1 --resource-group vehiculos --is-linux --sku B1
+
+# Crear una aplicación web que utilizará un contenedor Docker
+# - vehiculosapicontainer: nombre de la aplicación web
+# - Se especifica la imagen de contenedor que se usará inicialmente
+az webapp create --resource-group vehiculos --plan containersb1 --name vehiculosapicontainer --deployment-container-image-name vehiculosregistry.azurecr.io/vehiculos-api:latest
+
+# Configurar los detalles del contenedor para la aplicación web
+# - Establece la imagen de Docker a utilizar
+# - Configura la URL del registro de contenedores para autenticación
+az webapp config container set --name vehiculosapicontainer --resource-group vehiculos --docker-custom-image-name vehiculosregistry.azurecr.io/vehiculos-api:latest --docker-registry-server-url https://vehiculosregistry.azurecr.io
+
+# Reiniciar la aplicación web para aplicar todos los cambios de configuración
+# Es necesario después de modificar la configuración del contenedor
+az webapp restart --name vehiculosapicontainer --resource-group vehiculos

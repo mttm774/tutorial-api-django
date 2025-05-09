@@ -30,6 +30,7 @@ ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
     "vehiculosapicontainer.azurewebsites.net",
+    "apivehiculoscd-egewfufvfhdmffft.eastus-01.azurewebsites.net"
 ]
 
 

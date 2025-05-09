@@ -8,3 +8,6 @@ comando para cobertura
 coverage run --source='AppVehiculos' manage.py test AppVehiculos.tests 
 coverage report    
 coverage html    
+
+
+.github

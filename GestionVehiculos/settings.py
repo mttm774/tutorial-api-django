@@ -30,6 +30,8 @@ ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
     "vehiculosapicontainer.azurewebsites.net",
+    "delightful-pond-0e1b1600f.6.azurestaticapps.net",
+    "apivehiculoscd-egewfufvfhdmffft.eastus-01.azurewebsites.net"
 ]
 
 
